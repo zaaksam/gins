@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
-	"strings"
 	"testing"
 
 	"github.com/zaaksam/gins"
@@ -83,18 +81,28 @@ func init() {
 
 // Init 初始化
 func (conf *config) Init(version string) (err error) {
-	if Instance.Gins.Debug {
+	confName := "config.yaml"
+	confPath := filepath.Join(conf.RootPath, confName)
+
+	if conf.Gins.Debug {
+		// FIXME: 目前判断比较粗糙，最多 5 层目录检查
 		// 调试模式下，兼容单元测试模式的根目录路径识别
-		_, currentFile, _, ok := runtime.Caller(0)
-		if ok {
-			currentFile = strings.ReplaceAll(currentFile, string(os.PathSeparator)+filepath.Join("config", "config.go"), "")
-			if currentFile != Instance.RootPath {
-				Instance.RootPath = currentFile
+		tempRootPath := conf.RootPath
+		tempConfPath := confPath
+		for i := 0; i < 5; i++ {
+			_, e := os.Stat(tempConfPath)
+			if e == nil {
+				// 文件存在
+				confPath = tempConfPath
+				break
 			}
+
+			tempRootPath = filepath.Join(tempRootPath, "..")
+			tempConfPath = filepath.Join(tempRootPath, confName)
 		}
 	}
 
-	body, err := utils.ReadFile(filepath.Join(conf.RootPath, "config.yaml"))
+	body, err := utils.ReadFile(confPath)
 	if err != nil {
 		err = fmt.Errorf("读取 config.yaml 配置时出错：%s", err)
 		return
