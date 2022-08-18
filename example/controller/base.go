@@ -44,6 +44,9 @@ func parseModel(ctx *gin.Context, md any) (err error) {
 	}
 
 	err = json.Unmarshal(body, md)
+	if err != nil {
+		err = errors.NewAPIErrorWrap(err)
+	}
 	return
 }
 
