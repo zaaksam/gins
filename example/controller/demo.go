@@ -16,7 +16,7 @@ type demo struct{}
 
 func init() {
 	gins.AddInit(func(gs *gins.Server) {
-		router := gs.Engine().Group("ops/tag")
+		router := gs.Engine().Group("demo")
 
 		router.POST("list", Demo.List)
 	})
