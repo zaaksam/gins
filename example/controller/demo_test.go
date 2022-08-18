@@ -6,8 +6,8 @@ import (
 	"github.com/zaaksam/gins/test"
 )
 
-func TestOpsTagList(t *testing.T) {
+func TestDemoList(t *testing.T) {
 	req := test.NewRequest()
 
-	test.Post(t, req, "/ops/tag/list")
+	test.Post(t, req, "/demo/list")
 }
