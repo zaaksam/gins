@@ -21,6 +21,11 @@ func getRequestBody(ctx *gin.Context) (body []byte, err error) {
 			return
 		}
 	} else {
+		if ctx.Request.Body == nil {
+			// FIXME: 使用 1.18.5 时发现 Body 会为 nil，导致使用报错
+			return
+		}
+
 		body, err = ctx.GetRawData()
 		if err != nil {
 			err = errors.NewAPIErrorWrap(err)
