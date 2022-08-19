@@ -123,7 +123,7 @@ func (engine *Engine) getXormEngine(alias string) (xormEngine *xorm.Engine, err 
 		return
 	}
 
-	err = errors.New("数据库引擎：%s 不存在")
+	err = fmt.Errorf("数据库引擎：%s 不存在", alias)
 	return
 }
 
