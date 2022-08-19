@@ -2,9 +2,9 @@ package errors
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/zaaksam/gins/constant"
+	"github.com/zaaksam/gins/extend/nanoid"
 )
 
 type APIError struct {
@@ -41,35 +41,14 @@ func newAPIError(err error, msg string, codeOpt ...constant.APICodeType) (ae *AP
 }
 
 // NewAPIError 创建常规的 APIError，code 默认：API_ERROR
-func NewAPIError(msg string, codeOpt ...constant.APICodeType) (ae error) {
+func NewAPIError(msg string, codeOpt ...constant.APICodeType) (ae *APIError) {
 	ae = newAPIError(nil, msg, codeOpt...)
 	return
 }
 
 // NewAPIErrorWrap 创建包装过原始错误信息的 APIError ，code 默认：API_CRASH
-func NewAPIErrorWrap(err error) (ae error) {
-	msg := fmt.Sprintf("系统内部错误 [%d]", time.Now().Unix())
+func NewAPIErrorWrap(err error) (ae *APIError) {
+	msg := fmt.Sprintf("系统内部错误 [%s]", nanoid.New())
 	ae = newAPIError(err, msg, constant.API_CRASH)
 	return
 }
-
-// WrapAPIError 包装原始错误为 APIError，code 默认：API_ERROR
-// func WrapAPIError(err error, msg string, codeOpt ...constant.APICodeType) (ae error) {
-// 	ae = newAPIError(err, msg, codeOpt...)
-// 	return
-// }
-
-// 直接调用 errors.Unwrap 即可检出原始 err
-// UnwrapAPIError 从 APIError 错误中检出原始 err
-// func UnwrapAPIError(ae error) error {
-// 	for {
-// 		e := errors.Unwrap(ae)
-// 		if e == nil {
-// 			return nil
-// 		}
-
-// 		if ae, ok := e.(*APIError); ok {
-// 			return ae
-// 		}
-// 	}
-// }

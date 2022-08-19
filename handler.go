@@ -1,34 +1,45 @@
 package gins
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 )
 
-const (
-	gins_context_response_api = "gins_context_response_api"
-	gins_context_response_web = "gins_context_response_web"
-)
+func onHandler(gs *Server) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.Next()
 
-func handler(ctx *gin.Context) {
-	ctx.Next()
+		httpStatus := ctx.Writer.Status()
 
-	var res IResponse
+		if httpStatus == http.StatusNotFound {
+			if gs.conf.On404 != nil {
+				gs.conf.On404(ctx)
+			}
 
-	// API 响应
-	val, exists := ctx.Get(gins_context_response_api)
-	if exists {
-		res = val.(*apiResponse)
-	}
-
-	if res == nil {
-		// Web 响应
-		val, exists = ctx.Get(gins_context_response_web)
-		if exists {
-			res = val.(*webResponse)
+			return
 		}
-	}
 
-	if res != nil {
-		res.render()
+		// TODO: 是否要处理 http.StatusInternalServerError 500 事件调用 On505
+
+		var res IResponse
+
+		// API 响应
+		val, exists := ctx.Get(gins_context_response_api)
+		if exists {
+			res = val.(*apiResponse)
+		}
+
+		if res == nil {
+			// Web 响应
+			val, exists = ctx.Get(gins_context_response_web)
+			if exists {
+				res = val.(*webResponse)
+			}
+		}
+
+		if res != nil {
+			res.render()
+		}
 	}
 }
