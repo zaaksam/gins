@@ -36,11 +36,15 @@ func New(conf *Config) (gs *Server, err error) {
 	gs.rootCtx, gs.rootCancel = context.WithCancel(context.Background())
 
 	// 使用自定义响应处理
-	gs.engine.Use(handler)
+	gs.engine.Use(onHandler(gs))
 
+	// 添加日志处理
 	if conf.Debug {
 		gs.engine.Use(gin.Logger())
 	}
+
+	// 添加 panic 恢复处理
+	gs.engine.Use(onRecover(gs))
 
 	return
 }

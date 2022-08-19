@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -23,6 +24,9 @@ type Config struct {
 	LogLevel        string       // logger 日志级别，支持：trace、debug、info、warn、error、fatal、panic，默认：info
 	logrusLevel     logrus.Level // LogLevel 的 logrus 格式化
 	IsDisableSignal bool         // 是否关闭 signal 信号监听退出，默认：false，设置为 true 时，需主动调用 gins.Stop() 来触发优雅退出
+
+	On500 gin.RecoveryFunc // 自定义 500 处理，相当于 panic 的 recover 处理
+	On404 gin.HandlerFunc  // 自定义 404 处理
 }
 
 // Addr 运行地址

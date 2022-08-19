@@ -23,8 +23,14 @@ type apiResponse struct {
 }
 
 // GetAPIResponse 获取 API 响应对象
-func GetAPIResponse(ctx *gin.Context) *apiResponse {
-	res := &apiResponse{
+func GetAPIResponse(ctx *gin.Context) (res *apiResponse) {
+	val, exists := ctx.Get(gins_context_response_api)
+	if exists {
+		res = val.(*apiResponse)
+		return
+	}
+
+	res = &apiResponse{
 		ctx: ctx,
 	}
 
