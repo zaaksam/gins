@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/zaaksam/gins/errors"
 	"github.com/zaaksam/gins/example/model"
-	"github.com/zaaksam/gins/example/model/qry"
+	"github.com/zaaksam/gins/example/model/querymodel"
 	"github.com/zaaksam/gins/extend/orm"
 	"github.com/zaaksam/gins/extend/snowflake"
 )
@@ -71,7 +71,7 @@ func (*demo) get(da *orm.DA[*model.Demo], id uint64) (md *model.Demo, err error)
 		defer da.Close()
 	}
 
-	has, err := da.Where(md.GetIDMarkKey()+"=?", id).Get(md)
+	has, err := da.Where(md.ID.FieldName()+"=?", id).Get(md)
 	if err != nil {
 		err = errors.NewAPIErrorWrap(err)
 		return
@@ -85,11 +85,11 @@ func (*demo) get(da *orm.DA[*model.Demo], id uint64) (md *model.Demo, err error)
 // Create 创建
 func (*demo) Create(ctx *gin.Context, data *model.Demo) (md *model.Demo, err error) {
 	msg := ""
-	if data.User == "" {
+	if data.User.Val() == "" {
 		msg = "User不能为空"
-	} else if data.Pswd == "" {
+	} else if data.Pswd.Val() == "" {
 		msg = "Pswd不能为空"
-	} else if !data.IsStatusMark() {
+	} else if !data.Status.IsSetVal() {
 		msg = "Status不能为空"
 	}
 	if msg != "" {
@@ -121,12 +121,12 @@ func (*demo) create(da *orm.DA[*model.Demo], data *model.Demo) (md *model.Demo, 
 	}
 
 	ux := time.Now().Unix()
-	md.SetID(snowflake.NewID())
-	md.SetUser(data.User)
-	md.SetPswd(data.Pswd)
-	md.SetStatus(data.Status)
-	md.SetCreated(ux)
-	md.SetUpdated(ux)
+	md.ID.SetVal(snowflake.NewID())
+	md.User.SetVal(data.User.Val())
+	md.Pswd.SetVal(data.Pswd.Val())
+	md.Status.SetVal(data.Status.Val())
+	md.Created.SetVal(ux)
+	md.Updated.SetVal(ux)
 
 	rows, err := da.Insert(md)
 	if err != nil {
@@ -152,9 +152,9 @@ func (*demo) Update(da *orm.DA[*model.Demo], md *model.Demo) (err error) {
 	}
 
 	var rows int64
-	md.SetUpdated(time.Now().Unix())
+	md.Updated.SetVal(time.Now().Unix())
 
-	da.Where(md.GetIDMarkKey()+"=?", md.ID)
+	da.Where(md.ID.FieldName()+"=?", md.ID)
 	rows, err = da.UpdateByModel(md)
 	if err != nil {
 		err = errors.NewAPIErrorWrap(err)
@@ -181,7 +181,7 @@ func (*demo) Del(da *orm.DA[*model.Demo], id uint64) (err error) {
 
 	var rows int64
 
-	da.Where(md.GetIDMarkKey()+"=?", id)
+	da.Where(md.ID.FieldName()+"=?", id)
 	rows, err = da.Delete(md)
 	if err != nil {
 		err = errors.NewAPIErrorWrap(err)
@@ -194,7 +194,7 @@ func (*demo) Del(da *orm.DA[*model.Demo], id uint64) (err error) {
 }
 
 // List 列表
-func (*demo) List(ctx *gin.Context, qry *qry.Demo) (ml *orm.ModelList[*model.Demo], err error) {
+func (*demo) List(ctx *gin.Context, qry *querymodel.Demo) (ml *orm.ModelList[*model.Demo], err error) {
 	md := model.NewDemo()
 	da, err := orm.NewDA(md)
 	if err != nil {
@@ -203,23 +203,23 @@ func (*demo) List(ctx *gin.Context, qry *qry.Demo) (ml *orm.ModelList[*model.Dem
 	}
 	defer da.Close()
 
-	if qry.IsUserMark() {
-		da.Where(fmt.Sprintf("%s=?", md.GetUserMarkKey()), qry.User)
+	if qry.User.IsSetVal() {
+		da.And(fmt.Sprintf("%s=?", md.User.FieldName()), qry.User)
 	}
 
-	if qry.IsStatusMark() {
-		da.Where(fmt.Sprintf("%s=?", md.GetStatusMarkKey()), qry.Status)
+	if qry.Status.IsSetVal() {
+		da.And(fmt.Sprintf("%s=?", md.Status.FieldName()), qry.Status)
 	}
 
 	if qry.Page <= 0 {
-		qry.SetPage(1)
+		qry.Page = 1
 	}
 
 	if qry.PageSize <= 0 {
-		qry.SetPageSize(10)
+		qry.PageSize = 10
 	}
 
-	da.Desc(md.GetIDMarkKey())
+	da.Desc(md.ID.FieldName())
 	ml, err = da.GetModelList(qry.Page, qry.PageSize)
 
 	if err != nil {

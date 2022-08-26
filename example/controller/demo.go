@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/zaaksam/gins"
-	"github.com/zaaksam/gins/example/model/qry"
+	"github.com/zaaksam/gins/example/model/querymodel"
 	"github.com/zaaksam/gins/example/service"
 )
 
@@ -16,7 +16,9 @@ type demo struct{}
 
 func init() {
 	gins.AddInit(func(gs *gins.Server) {
-		router := gs.Engine().Group("demo")
+		router := gs.Engine().Group("demo").Use(func(ctx *gin.Context) {
+
+		})
 
 		router.POST("list", Demo.List)
 	})
@@ -46,8 +48,8 @@ func (*demo) Get(ctx *gin.Context) {
 func (*demo) Create(ctx *gin.Context) {
 	res := gins.GetAPIResponse(ctx)
 
-	qry := qry.NewDemo()
-	err := parseModel(ctx, qry)
+	qry := querymodel.NewDemo()
+	err := jsonToModel(ctx, qry)
 	if err != nil {
 		res.SetError(err)
 		return
@@ -66,9 +68,15 @@ func (*demo) Create(ctx *gin.Context) {
 func (*demo) List(ctx *gin.Context) {
 	res := gins.GetAPIResponse(ctx)
 
-	qry := qry.NewDemo()
+	qry := querymodel.NewDemo()
 
-	err := parseModel(ctx, qry)
+	var err error
+
+	// 原生 json 解析
+	// err = jsonToModel(ctx, qry)
+
+	// 包含 validate 校验的 json 解析
+	err = ctx.ShouldBindJSON(qry)
 	if err != nil {
 		res.SetError(err)
 		return

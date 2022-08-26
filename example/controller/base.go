@@ -37,7 +37,7 @@ func getRequestBody(ctx *gin.Context) (body []byte, err error) {
 	return
 }
 
-func parseModel(ctx *gin.Context, md any) (err error) {
+func jsonToModel(ctx *gin.Context, md any) (err error) {
 	body, err := getRequestBody(ctx)
 	if err != nil {
 		return
@@ -50,7 +50,7 @@ func parseModel(ctx *gin.Context, md any) (err error) {
 	return
 }
 
-func parseJSONResult(ctx *gin.Context) (jsonResult *gjson.Result, err error) {
+func jsonToResult(ctx *gin.Context) (jsonResult *gjson.Result, err error) {
 	body, err := getRequestBody(ctx)
 	if err != nil {
 		return

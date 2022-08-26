@@ -1,4 +1,4 @@
-package qry
+package querymodel
 
 // Paging 分页
 type Paging struct {
