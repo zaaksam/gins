@@ -14,8 +14,7 @@ type DA[T IModel] struct {
 	*xorm.Session
 	xormEngine *xorm.Engine
 
-	model T
-	// imodel   IModel
+	model    T
 	hasOrder bool
 	groupBy  string
 }
@@ -30,21 +29,10 @@ func NewDA[T IModel](md T) (da *DA[T], err error) {
 	da = &DA[T]{
 		xormEngine: xormEngine,
 		model:      md,
-		// imodel:     md,
 	}
 
 	da.Session = da.xormEngine.NewSession()
 	return
-}
-
-// GetModel 获取内置模型
-func (da *DA[T]) GetModel() (md T) {
-	return da.model
-}
-
-// SetModel 设置内置模型
-func (da *DA[T]) SetModel(md T) {
-	da.model = md
 }
 
 // UpdateByModel 通过模型更新数据，没传参数时使用内置模型对象
@@ -56,7 +44,7 @@ func (da *DA[T]) UpdateByModel(imdOpt ...IModel) (int64, error) {
 		imd = da.model
 	}
 
-	columns := imd.FieldMarks()
+	columns := imd.FieldNames(true)
 	if len(columns) <= 0 {
 		return 0, errors.New("IModel没有设置字段内容，无法更新")
 	}
