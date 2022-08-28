@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/zaaksam/gins"
-	"github.com/zaaksam/gins/example/utils"
+	"github.com/zaaksam/gins/extend/fileutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -102,7 +102,7 @@ func (conf *config) Init(version string) (err error) {
 		}
 	}
 
-	body, err := utils.ReadFile(confPath)
+	body, err := fileutil.ReadFile(confPath)
 	if err != nil {
 		err = fmt.Errorf("读取 config.yaml 配置时出错：%s", err)
 		return

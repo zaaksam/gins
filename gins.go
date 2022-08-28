@@ -5,6 +5,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 	"github.com/zaaksam/gins/extend/logger"
 )
 
@@ -91,4 +93,9 @@ func AddInit(fn func(gs *Server)) {
 	}
 
 	initFuncs = append(initFuncs, fn)
+}
+
+// GetValidate 获取 gin 内部的 Validate 对象
+func GetValidate() *validator.Validate {
+	return binding.Validator.Engine().(*validator.Validate)
 }

@@ -43,6 +43,11 @@ func do(t *testing.T, req *Request, method, urlStr string) {
 
 	}
 
+	// POST 请求时，json 为空时必须传 {}
+	if method == "POST" && req.json == nil {
+		req.json = make(map[string]any)
+	}
+
 	if req.json != nil {
 		body, err = json.Marshal(req.json)
 		if err != nil {
@@ -86,7 +91,7 @@ func do(t *testing.T, req *Request, method, urlStr string) {
 	}
 
 	if res.Code != constant.API_OK {
-		t.Fatalf("响应 code 不为 200，响应内容：\n%s", res.content)
+		t.Fatalf("响应 code 不为 200，响应内容：\n\n%s\n\n", res.content)
 	}
 
 	t.Log(res.content)

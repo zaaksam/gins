@@ -1,8 +1,10 @@
 package test
 
 import (
+	"github.com/zaaksam/gins"
 	"github.com/zaaksam/gins/example/config"
 	"github.com/zaaksam/gins/example/db"
+	"github.com/zaaksam/gins/extend/orm"
 	"github.com/zaaksam/gins/test"
 )
 
@@ -22,6 +24,12 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+
+	gins.AddInit(func(*gins.Server) {
+		// 注册 orm 到 validator
+		validate := gins.GetValidate()
+		orm.RegisterWithValidator(validate)
+	})
 
 	test.Init(config.Instance.Gins)
 }

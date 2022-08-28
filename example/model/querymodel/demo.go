@@ -1,4 +1,4 @@
-package qry
+package querymodel
 
 import "github.com/zaaksam/gins/example/model"
 
