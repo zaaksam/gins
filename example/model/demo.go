@@ -4,9 +4,9 @@ import "github.com/zaaksam/gins/extend/orm"
 
 // Demo 模型
 type Demo struct {
-	orm.Model
+	orm.Model `xorm:"-"`
 
-	ID      *orm.Field[uint64] `json:"id" xorm:"bigint pk 'id'"`
+	ID      *orm.Field[uint64] `json:"id,string" xorm:"bigint pk 'id'"`
 	User    *orm.Field[string] `json:"user" xorm:"varchar(50) not null 'user'"`
 	Pswd    *orm.Field[string] `json:"pswd" xorm:"varchar(100) not null 'pswd'"`
 	Status  *orm.Field[int]    `json:"status" xorm:"tinyint not null 'status'"`
