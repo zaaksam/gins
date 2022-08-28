@@ -9,25 +9,20 @@ const field_json_string_quote = `"`
 
 // Field 字段
 type Field[T FieldType] struct {
-	model     *Model
-	jsonName  string
-	fieldName string
-	val       T
+	model           *Model
+	isJSONTagString bool // json tag 是否有 string 标记
+	jsonName        string
+	fieldName       string
+	val             T
 }
 
-// NewField 创建新的字段，jsonNameOpt 省略时，jsonName=fieldName
-func NewField[T FieldType](model *Model, fieldName string, jsonNameOpt ...string) *Field[T] {
-	jsonName := ""
-	if len(jsonNameOpt) == 1 {
-		jsonName = jsonNameOpt[0]
-	} else {
-		jsonName = fieldName
-	}
-
+// NewField 创建新的字段
+func NewField[T FieldType](model *Model, fieldName, jsonName string, isJSONTagString bool) *Field[T] {
 	f := &Field[T]{
-		model:     model,
-		jsonName:  jsonName,
-		fieldName: fieldName,
+		model:           model,
+		isJSONTagString: isJSONTagString,
+		jsonName:        jsonName,
+		fieldName:       fieldName,
 	}
 
 	// 默认初始化
@@ -125,12 +120,25 @@ func (f *Field[T]) marshal(isJSONFormat bool) (body []byte, err error) {
 		body = floatToBytes(*v, 64)
 	}
 
+	if isJSONFormat && f.isJSONTagString {
+		newBody := make([]byte, 0, len(body)+2)
+		newBody = append(newBody, []byte(field_json_string_quote)...)
+		newBody = append(newBody, body...)
+		newBody = append(newBody, []byte(field_json_string_quote)...)
+
+		body = newBody
+	}
+
 	return
 }
 
 // bytes 转化为值，相当于赋值
 func (f *Field[T]) unmarshal(isJSONFormat bool, body []byte) (err error) {
 	// logger.Debugf("unmarshal：%s=%s", f.fieldName, string(body))
+
+	if isJSONFormat && f.isJSONTagString {
+		body = body[1 : len(body)-1]
+	}
 
 	var ti any = &f.val
 	switch v := ti.(type) {
