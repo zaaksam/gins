@@ -8,12 +8,12 @@ func NewDemo() *Demo {
 
 	imd := &md.Model
 
-	md.ID = orm.NewField[uint64](imd, "id")
-	md.User = orm.NewField[string](imd, "user")
-	md.Pswd = orm.NewField[string](imd, "pswd")
-	md.Status = orm.NewField[int](imd, "status")
-	md.Created = orm.NewField[int64](imd, "created")
-	md.Updated = orm.NewField[int64](imd, "updated")
+	md.ID = orm.NewField[uint64](imd, "id", "id", true)
+	md.User = orm.NewField[string](imd, "user", "user", false)
+	md.Pswd = orm.NewField[string](imd, "pswd", "pswd", false)
+	md.Status = orm.NewField[int](imd, "status", "status", false)
+	md.Created = orm.NewField[int64](imd, "created", "created", false)
+	md.Updated = orm.NewField[int64](imd, "updated", "updated", false)
 
 	return md
 }
