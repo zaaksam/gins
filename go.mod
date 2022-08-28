@@ -5,7 +5,6 @@ go 1.18
 require (
 	github.com/amoeba-inc/easyjson v1.1.2
 	github.com/gin-gonic/gin v1.8.1
-	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/goccy/go-json v0.9.10
@@ -43,5 +42,4 @@ require (
 	golang.org/x/sys v0.0.0-20211007075335-d3039528d8ac // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
-	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 )
