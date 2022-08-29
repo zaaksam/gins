@@ -66,11 +66,13 @@ func (conf *Config) Init() (err error) {
 		conf.Timeout = 30
 	}
 
-	if conf.LogLevel != "" {
-		conf.logrusLevel, err = logrus.ParseLevel(conf.LogLevel)
-		if err != nil {
-			err = fmt.Errorf("配置 LogLevel 错误：%s", err)
-		}
+	if conf.LogLevel == "" {
+		conf.LogLevel = "info"
+	}
+
+	conf.logrusLevel, err = logrus.ParseLevel(conf.LogLevel)
+	if err != nil {
+		err = fmt.Errorf("配置 LogLevel 错误：%s", err)
 	}
 	return
 }
