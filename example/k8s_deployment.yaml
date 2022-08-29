@@ -45,19 +45,19 @@ spec:
           terminationMessagePolicy: File
           volumeMounts:
             - mountPath: /app/config.yaml
-              name: bak_config
-              subPath: ((app-name))
+              name: ((k8s-name))
+              subPath: config.yaml
       dnsPolicy: ClusterFirst
       imagePullSecrets:
-        - name: bak-docker-registry
+        - name: gins-docker-registry
       restartPolicy: Always
       schedulerName: default-scheduler
       terminationGracePeriodSeconds: 30
       volumes:
         - configMap:
             defaultMode: 420
-            name: bak_config
-          name: bak_config
+            name: ((k8s-name))
+          name: ((k8s-name))
 
 # 说明：
 # ((k8s-namespace)) 命名空间，一般测服：test，正服：default
