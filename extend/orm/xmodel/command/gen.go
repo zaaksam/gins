@@ -14,7 +14,6 @@ import (
 	"github.com/urfave/cli/v2"
 	"github.com/zaaksam/gins/extend/cmdutil"
 	"github.com/zaaksam/gins/extend/fileutil"
-	"github.com/zaaksam/gins/extend/logger"
 )
 
 // genInstance 生成
@@ -173,15 +172,12 @@ func (*gen) parseASTStructType(name string, structType *ast.StructType) (codeMod
 		ok        bool
 	)
 
-	logger.Debug("start")
 	for i := 0; i < l; i++ {
 		// 解析 ast.Field 为 genField 结构
 		codeField, ok = genInstance.parseASTField(structType.Fields.List[i])
 		if !ok {
 			continue
 		}
-
-		logger.Debugf("序号：%d", i, codeField.Type)
 
 		// 第一行需要为 orm.Model
 		if i == 0 && codeField.Type != "orm.Model" {
@@ -196,7 +192,6 @@ func (*gen) parseASTStructType(name string, structType *ast.StructType) (codeMod
 
 		codeFields = append(codeFields, codeField)
 	}
-	logger.Debug("end")
 
 	if len(codeFields) == 0 {
 		err = errors.New(name + " 结构没有发现任意 *orm.Field 字段")
