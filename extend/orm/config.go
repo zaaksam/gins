@@ -24,6 +24,10 @@ type Config struct {
 
 // Init 初始化
 func (conf *Config) Init() (err error) {
+	if conf.LogLevel == "" {
+		conf.LogLevel = "off"
+	}
+
 	switch conf.LogLevel {
 	case "debug":
 		conf.xormLogLevel = log.LOG_DEBUG
