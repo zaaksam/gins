@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/zaaksam/gins"
 	"github.com/zaaksam/gins/extend/fileutil"
+	"github.com/zaaksam/gins/extend/logger"
 	"gopkg.in/yaml.v2"
 )
 
@@ -17,10 +19,10 @@ var Instance config
 
 type config struct {
 	// Gins 配置
-	Gins       *gins.Config `yaml:"-"`
-	Task       bool         `yaml:"-"`
-	RootPath   string       `yaml:"-"` // 程序所在目录
-	ConfigPath string       `yaml:"-"` // config.yaml 所在目录
+	Gins     *gins.Config `yaml:"-"`
+	Task     bool         `yaml:"-"`
+	ExecPath string       `yaml:"-"` // 运行程序的目录
+	RootPath string       `yaml:"-"` // 程序所在目录
 
 	LogLevel string `yaml:"logLevel"` // 默认：info
 	Redis    struct {
@@ -76,7 +78,16 @@ func init() {
 		Instance.Gins.Name = "gins_example"
 	}
 
-	Instance.RootPath, _ = os.Getwd()
+	Instance.ExecPath, _ = os.Getwd()
+
+	executablePath, _ := os.Executable()
+	executablePaths := strings.Split(executablePath, string(os.PathSeparator))
+	Instance.RootPath = strings.Join(executablePaths[:len(executablePaths)-1], string(os.PathSeparator))
+
+	// if Instance.Gins.Debug {
+	logger.Infof("execPath: %s", Instance.ExecPath)
+	logger.Infof("rootPath: %s", Instance.RootPath)
+	// }
 }
 
 // Init 初始化
@@ -87,7 +98,7 @@ func (conf *config) Init(version string) (err error) {
 	if conf.Gins.Debug {
 		// FIXME: 目前判断比较粗糙，最多 5 层目录检查
 		// 调试模式下，兼容单元测试模式的根目录路径识别
-		tempRootPath := conf.RootPath
+		tempExecPath := conf.ExecPath
 		tempConfPath := confPath
 		for i := 0; i < 5; i++ {
 			_, e := os.Stat(tempConfPath)
@@ -97,8 +108,8 @@ func (conf *config) Init(version string) (err error) {
 				break
 			}
 
-			tempRootPath = filepath.Join(tempRootPath, "..")
-			tempConfPath = filepath.Join(tempRootPath, confName)
+			tempExecPath = filepath.Join(tempExecPath, "..")
+			tempConfPath = filepath.Join(tempExecPath, confName)
 		}
 	}
 
