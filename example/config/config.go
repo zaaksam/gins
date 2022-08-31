@@ -84,10 +84,10 @@ func init() {
 	executablePaths := strings.Split(executablePath, string(os.PathSeparator))
 	Instance.RootPath = strings.Join(executablePaths[:len(executablePaths)-1], string(os.PathSeparator))
 
-	// if Instance.Gins.Debug {
-	logger.Infof("execPath: %s", Instance.ExecPath)
-	logger.Infof("rootPath: %s", Instance.RootPath)
-	// }
+	if Instance.Gins.Debug {
+		logger.Infof("execPath: %s", Instance.ExecPath)
+		logger.Infof("rootPath: %s", Instance.RootPath)
+	}
 }
 
 // Init 初始化
