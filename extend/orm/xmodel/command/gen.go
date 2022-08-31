@@ -22,7 +22,8 @@ var genInstance gen
 type gen struct {
 	*cli.Command
 
-	wd string
+	isInit bool
+	wd     string
 }
 
 type genModel struct {
@@ -41,22 +42,27 @@ type genField struct {
 
 // Gen 生成代码
 func Gen() *cli.Command {
-	genInstance.init()
+	genInstance.onceInit()
 
 	return genInstance.Command
 }
 
-func (*gen) init() {
-	genInstance.wd, _ = os.Getwd()
+func (g *gen) onceInit() {
+	if g.isInit {
+		return
+	}
+	g.isInit = true
 
-	genInstance.Command = &cli.Command{
+	g.wd, _ = os.Getwd()
+
+	g.Command = &cli.Command{
 		Name:  "gen",
-		Usage: "生成 orm model 代码，示例：xmodel gen demo.go",
+		Usage: "[默认可省略] 生成 orm model 代码，示例：xmodel gen demo.go",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:  "r",
 				Usage: "生成 orm.Register 函数调用",
-				Value: false,
+				Value: true,
 			},
 			&cli.BoolFlag{
 				Name:  "d",
@@ -77,26 +83,20 @@ func (*gen) init() {
 				return
 			}
 
-			modelFilePath := filepath.Join(genInstance.wd, modelFile)
+			modelFilePath := filepath.Join(g.wd, modelFile)
 
 			// 解析文件源代码
-			modelFilePath = "/Users/zaaksam/dev/zaaksam/gins/example/model/querymodel/demo.go"
-			pkgName, mds, err := genInstance.parseFile(ctx, modelFilePath)
+			pkgName, mds, err := g.parseFile(ctx, modelFilePath)
 			if err != nil {
-				return
-			}
-
-			if len(mds) == 0 {
-				err = errors.New(modelFile + " 没有解析到 orm.Model 结构体")
 				return
 			}
 
 			// 生成 _orm.go 文件路径信息
 			ormModelFile := strings.Replace(modelFile, ".go", "_orm.go", 1)
-			ormModelFilePath := filepath.Join(genInstance.wd, ormModelFile)
+			ormModelFilePath := filepath.Join(g.wd, ormModelFile)
 
 			// 从模板生成源代码
-			err = genInstance.parseTemplate(ctx, ormModelFilePath, pkgName, mds)
+			err = g.parseTemplate(ctx, ormModelFilePath, pkgName, mds)
 			if err != nil {
 				return
 			}
@@ -108,7 +108,7 @@ func (*gen) init() {
 	}
 }
 
-func (*gen) parseFile(ctx *cli.Context, modelFilePath string) (pkgName string, codeModels []*genModel, err error) {
+func (g *gen) parseFile(ctx *cli.Context, modelFilePath string) (pkgName string, codeModels []*genModel, err error) {
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, modelFilePath, nil, parser.AllErrors)
 	if err != nil {
@@ -118,6 +118,8 @@ func (*gen) parseFile(ctx *cli.Context, modelFilePath string) (pkgName string, c
 	if ctx.Bool("d") {
 		// 查看 ast 结构
 		ast.Print(fset, f)
+
+		err = errors.New("因调试代码中止")
 		return
 	}
 
@@ -151,7 +153,7 @@ func (*gen) parseFile(ctx *cli.Context, modelFilePath string) (pkgName string, c
 			}
 
 			// 解析 struct 为 genModel 结构
-			codeModel, err = genInstance.parseASTStructType(typeSpec.Name.Name, structType)
+			codeModel, err = g.parseASTStructType(typeSpec.Name.Name, structType)
 			if err != nil {
 				return
 			}
@@ -160,10 +162,13 @@ func (*gen) parseFile(ctx *cli.Context, modelFilePath string) (pkgName string, c
 		}
 	}
 
+	if len(codeModels) == 0 {
+		err = errors.New(modelFilePath + " 没有解析到 orm.Model 结构体")
+	}
 	return
 }
 
-func (*gen) parseASTStructType(name string, structType *ast.StructType) (codeModel *genModel, err error) {
+func (g *gen) parseASTStructType(name string, structType *ast.StructType) (codeModel *genModel, err error) {
 	l := len(structType.Fields.List)
 	codeFields := make([]*genField, 0, l)
 
@@ -174,7 +179,7 @@ func (*gen) parseASTStructType(name string, structType *ast.StructType) (codeMod
 
 	for i := 0; i < l; i++ {
 		// 解析 ast.Field 为 genField 结构
-		codeField, ok = genInstance.parseASTField(structType.Fields.List[i])
+		codeField, ok = g.parseASTField(structType.Fields.List[i])
 		if !ok {
 			continue
 		}
