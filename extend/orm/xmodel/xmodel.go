@@ -12,17 +12,20 @@ import (
 func main() {
 	logger.SetLevel(logrus.DebugLevel)
 
+	genCmd := command.Gen()
+
 	app := &cli.App{
 		Name:  "xmodel",
 		Usage: "orm model 扩展代码生成工具",
 		Commands: []*cli.Command{
-			command.Gen(),
+			genCmd,
 			command.Version(),
 		},
-		Action: func(ctx *cli.Context) error {
-			return nil
-		},
 	}
+
+	// 设置默认命令为：gen
+	app.Flags = genCmd.Flags
+	app.Action = genCmd.Action
 
 	err := app.Run(os.Args)
 	if err != nil {
