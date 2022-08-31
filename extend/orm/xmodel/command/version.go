@@ -12,7 +12,7 @@ func Version() *cli.Command {
 		Usage:   "版本号",
 		Aliases: []string{"v", "ver"},
 		Action: func(ctx *cli.Context) error {
-			fmt.Println("v1.0.0")
+			fmt.Println("v1.0.1")
 			return nil
 		},
 	}
