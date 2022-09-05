@@ -266,6 +266,14 @@ func (*gen) parseASTField(field *ast.Field) (codeField *genField, ok bool) {
 		}
 	}
 
+	if codeField.JSONName == "" {
+		codeField.JSONName = codeField.Name
+	}
+
+	if codeField.XormName == "" {
+		codeField.XormName = codeField.Name
+	}
+
 	// 嵌套类型检查 orm.Model
 	selectorExpr, ok = field.Type.(*ast.SelectorExpr)
 	if ok {
