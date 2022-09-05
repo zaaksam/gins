@@ -30,6 +30,9 @@ func main() {
 	err := app.Run(os.Args)
 	if err != nil {
 		logger.Error(err)
-		cli.Exit(err, 1)
+		os.Exit(1)
+		return
 	}
+
+	os.Exit(0)
 }
