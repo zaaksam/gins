@@ -17,7 +17,9 @@ func uintToBytes[T FieldTypeUint](val T) []byte {
 }
 
 func floatToBytes[T FieldTypeFloat](val T, bitSize int) []byte {
-	return strconv.AppendFloat(nil, float64(val), 'g', -1, bitSize)
+	// FIXME:  fmt=g 会导致过大数值变成科学计数
+	// return strconv.AppendFloat(nil, float64(val), 'g', -1, bitSize)
+	return strconv.AppendFloat(nil, float64(val), 'f', -1, bitSize)
 }
 
 // ====== 字节数组 转 原生类型数据 ======

@@ -17,7 +17,7 @@ type ValidatorValuer interface {
 
 // ValidatorValue 实现 ValidatorValuer 接口
 func (f Field[T]) ValidatorValue() (value any, isSetVal bool) {
-	value, isSetVal = f.val, f.getModel().isSetVal(f.fieldName)
+	value, isSetVal = f.val, f.isSetVal
 	return
 }
 
