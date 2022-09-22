@@ -11,20 +11,44 @@ func init() {
 
 // NewDemo 创建数据对象
 func NewDemo() *Demo {
-	md := &Demo{}
-	imd := &md.Model
+	md := &Demo{
 
-	md.ID = orm.NewField[uint64](imd, "id", "id", true)
+		ID: &orm.Field[uint64]{},
 
-	md.User = orm.NewField[string](imd, "user", "user", false)
+		User: &orm.Field[string]{},
 
-	md.Pswd = orm.NewField[string](imd, "pswd", "pswd", false)
+		Pswd: &orm.Field[string]{},
 
-	md.Status = orm.NewField[int](imd, "status", "status", false)
+		Status: &orm.Field[int]{},
 
-	md.Created = orm.NewField[int64](imd, "cteated", "created", false)
+		Created: &orm.Field[int64]{},
 
-	md.Updated = orm.NewField[int64](imd, "updated", "updated", false)
+		Updated: &orm.Field[int64]{},
+	}
+
+	md.FieldReset()
 
 	return md
+}
+
+// FieldReset 重设字段配置
+func (md *Demo) FieldReset() {
+	if md == nil {
+		return
+	}
+
+	imd := &md.Model
+
+	md.ID.Reset(imd, "id", "id", true)
+
+	md.User.Reset(imd, "user", "user", false)
+
+	md.Pswd.Reset(imd, "pswd", "pswd", false)
+
+	md.Status.Reset(imd, "status", "status", false)
+
+	md.Created.Reset(imd, "cteated", "created", false)
+
+	md.Updated.Reset(imd, "updated", "updated", false)
+
 }

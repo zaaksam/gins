@@ -1,19 +1,51 @@
 package querymodel
 
-import "github.com/zaaksam/gins/extend/orm"
+import (
+	"github.com/zaaksam/gins/example/model"
+	"github.com/zaaksam/gins/extend/orm"
+)
 
 // NewDemo 创建数据对象
 func NewDemo() *Demo {
-	md := &Demo{}
+	md := &Demo{
+		Demo: model.Demo{
+			ID: &orm.Field[uint64]{},
+
+			User: &orm.Field[string]{},
+
+			Pswd: &orm.Field[string]{},
+
+			Status: &orm.Field[int]{},
+
+			Created: &orm.Field[int64]{},
+
+			Updated: &orm.Field[int64]{},
+		},
+	}
+
+	md.FieldReset()
+
+	return md
+}
+
+// FieldReset 重设字段配置
+func (md *Demo) FieldReset() {
+	if md == nil {
+		return
+	}
 
 	imd := &md.Model
 
-	md.ID = orm.NewField[uint64](imd, "id", "id", true)
-	md.User = orm.NewField[string](imd, "user", "user", false)
-	md.Pswd = orm.NewField[string](imd, "pswd", "pswd", false)
-	md.Status = orm.NewField[int](imd, "status", "status", false)
-	md.Created = orm.NewField[int64](imd, "created", "created", false)
-	md.Updated = orm.NewField[int64](imd, "updated", "updated", false)
+	md.ID.Reset(imd, "id", "id", true)
 
-	return md
+	md.User.Reset(imd, "user", "user", false)
+
+	md.Pswd.Reset(imd, "pswd", "pswd", false)
+
+	md.Status.Reset(imd, "status", "status", false)
+
+	md.Created.Reset(imd, "cteated", "created", false)
+
+	md.Updated.Reset(imd, "updated", "updated", false)
+
 }
