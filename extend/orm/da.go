@@ -139,6 +139,14 @@ func (da *DA[T]) GetModelListWithPageOffset(page, pageSize, pageOffset int, item
 
 	da.Limit(da.getModelListLimit(ml, pageOffset))
 	err = da.Table(da.model).Find(&ml.Items)
+	if err != nil {
+		return
+	}
+
+	// items 为新建切片，重设字段的配置
+	for _, item := range ml.Items {
+		item.FieldReset()
+	}
 	return
 }
 
@@ -252,6 +260,14 @@ func (da *DA[T]) GetModelListByBuilderWithPageOffset(builder *Builder, page, pag
 	}
 
 	err = da.Session.SQL(selectSQL, args...).Find(ml.Items)
+	if err != nil {
+		return
+	}
+
+	// items 为新建切片，重设字段的配置
+	for _, item := range ml.Items {
+		item.FieldReset()
+	}
 	return
 }
 

@@ -17,14 +17,28 @@ func init() {
 {{range $model := .models}}
 // New{{$model.Name}} 创建数据对象
 func New{{$model.Name}}() *{{$model.Name}} {
-	md := &{{$model.Name}}{}
+	md := &{{$model.Name}}{
+		{{range $field := $model.Fields}}
+		{{$field.Name}}: &orm.Field[{{$field.RawType}}]{},
+		{{end}}
+	}
+	
+	md.FieldReset()
+
+	return md
+}
+
+// FieldReset 重设字段配置
+func (md *{{$model.Name}}) FieldReset() {
+	if md == nil {
+		return
+	}
+
 	imd := &md.Model
 
 	{{range $field := $model.Fields}}
-	md.{{$field.Name}} = orm.NewField[{{$field.RawType}}](imd, "{{$field.XormName}}", "{{$field.JSONName}}", {{$field.IsJSONTagString}})
+	md.{{$field.Name}}.Reset(imd, "{{$field.XormName}}", "{{$field.JSONName}}", {{$field.IsJSONTagString}})
 	{{end}}
-
-	return md
 }
 {{end}}
 `

@@ -7,44 +7,35 @@ import (
 
 const field_json_string_quote = `"`
 
+// 基础字段接口
+type IField interface {
+	IsSetVal() bool
+	FieldName() string
+}
+
 // Field 字段
 type Field[T FieldType] struct {
 	model           *Model
 	isJSONTagString bool // json tag 是否有 string 标记
 	jsonName        string
 	fieldName       string
+	isSetVal        bool
 	val             T
 }
 
-// NewField 创建新的字段
-func NewField[T FieldType](model *Model, fieldName, jsonName string, isJSONTagString bool) *Field[T] {
-	f := &Field[T]{
-		model:           model,
-		isJSONTagString: isJSONTagString,
-		jsonName:        jsonName,
-		fieldName:       fieldName,
-	}
+// Reset 重设配置
+func (f *Field[T]) Reset(model *Model, fieldName, jsonName string, isJSONTagString bool) {
+	f.model = model
+	f.fieldName = fieldName
+	f.jsonName = jsonName
+	f.isJSONTagString = isJSONTagString
 
-	// 默认初始化
-	f.getModel().unsetVal(f.fieldName)
-
-	return f
-}
-
-// FIXME: da.GetModelList 会生成 []*Field 切片，model、name 为零值
-func (f *Field[T]) getModel() *Model {
-	if f.model == nil {
-		f.model = &Model{}
-		// f.jsonName = "unknown"
-		// f.name = "unknown"
-	}
-
-	return f.model
+	f.model.setField(f)
 }
 
 // IsSetVal 是否赋值
 func (f *Field[T]) IsSetVal() bool {
-	return f.getModel().isSetVal(f.fieldName)
+	return f.isSetVal
 }
 
 // SetVal 设定赋值，不指定 valOpt 时仅为设置赋值状态
@@ -53,7 +44,7 @@ func (f *Field[T]) SetVal(valOpt ...T) {
 		f.val = valOpt[0]
 	}
 
-	f.getModel().setVal(f.fieldName)
+	f.isSetVal = true
 }
 
 // UnsetVal 取消赋值，不指定 valOpt 时仅为取消赋值状态
@@ -62,7 +53,7 @@ func (f *Field[T]) UnsetVal(valOpt ...T) {
 		f.val = valOpt[0]
 	}
 
-	f.getModel().unsetVal(f.fieldName)
+	f.isSetVal = false
 }
 
 // Val 值
