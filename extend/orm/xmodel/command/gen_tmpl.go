@@ -17,12 +17,7 @@ func init() {
 {{range $model := .models}}
 // New{{$model.Name}} 创建数据对象
 func New{{$model.Name}}() *{{$model.Name}} {
-	md := &{{$model.Name}}{
-		{{range $field := $model.Fields}}
-		{{$field.Name}}: &orm.Field[{{$field.RawType}}]{},
-		{{end}}
-	}
-	
+	md := &{{$model.Name}}{}
 	md.FieldReset()
 
 	return md
@@ -37,6 +32,9 @@ func (md *{{$model.Name}}) FieldReset() {
 	imd := &md.Model
 
 	{{range $field := $model.Fields}}
+	if md.{{$field.Name}} == nil {
+		md.{{$field.Name}} = &orm.Field[{{$field.RawType}}]{}
+	}
 	md.{{$field.Name}}.Reset(imd, "{{$field.XormName}}", "{{$field.JSONName}}", {{$field.IsJSONTagString}})
 	{{end}}
 }
