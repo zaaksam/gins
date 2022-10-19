@@ -79,7 +79,7 @@ func (f *Field[T]) marshal(isJSONFormat bool) (body []byte, err error) {
 	switch v := ti.(type) {
 	case *string:
 		if isJSONFormat {
-			body = []byte(field_json_string_quote + *v + field_json_string_quote)
+			body = stringToJSONValue(*v)
 		} else {
 			body = []byte(*v)
 		}
