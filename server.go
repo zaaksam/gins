@@ -2,6 +2,7 @@ package gins
 
 import (
 	"context"
+	"html/template"
 	"net/http"
 	"time"
 
@@ -15,6 +16,8 @@ type Server struct {
 	httpServer *http.Server
 	rootCtx    context.Context
 	rootCancel context.CancelFunc
+
+	templ *template.Template
 }
 
 // New 新服务
@@ -35,16 +38,21 @@ func New(conf *Config) (gs *Server, err error) {
 
 	gs.rootCtx, gs.rootCancel = context.WithCancel(context.Background())
 
-	// 使用自定义响应处理
-	gs.engine.Use(onHandler(gs))
+	// 添加 panic 恢复处理
+	gs.engine.Use(onRecover(gs))
 
 	// 添加日志处理
 	if conf.Debug {
 		gs.engine.Use(gin.Logger())
 	}
 
-	// 添加 panic 恢复处理
-	gs.engine.Use(onRecover(gs))
+	// 使用自定义 404 处理
+	if gs.conf.On404 != nil {
+		gs.engine.NoRoute(gs.conf.On404)
+	}
+
+	// 使用自定义响应处理
+	gs.engine.Use(onHandler(gs))
 
 	return
 }
@@ -56,11 +64,18 @@ func (gs *Server) Engine() *gin.Engine {
 
 // Run 启动
 func (gs *Server) Run() {
+	// 设置模板
+	if gs.templ != nil {
+		gs.Engine().SetHTMLTemplate(gs.templ)
+	}
+
 	logger.Infof("[%s %s]服务运行在：%s", gs.conf.Name, gs.conf.Version, gs.conf.BroadcastAddr())
 
-	// FIXME: 不关闭的话，优雅退出时，会导致有连接挂起，总是需要超时退出
-	// 目前关闭 keep-alive 状态并未成功
-	gs.httpServer.SetKeepAlivesEnabled(false)
+	if !gs.conf.IsEnableKeepAlives {
+		// FIXME: 不关闭的话，优雅退出时，会导致有连接挂起，总是需要超时退出
+		// 目前关闭 keep-alive 状态并未成功
+		gs.httpServer.SetKeepAlivesEnabled(false)
+	}
 
 	err := gs.httpServer.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
@@ -86,4 +101,14 @@ func (gs *Server) Stop() {
 
 	// FIXME: 延时2秒退出，让超时任务 504 响应完成
 	time.Sleep(2 * time.Second)
+}
+
+// AddTemplate 添加模板
+func (gs *Server) AddTemplate(name string, body []byte) (err error) {
+	if gs.templ == nil {
+		gs.templ, err = template.New(name).Parse(string(body))
+	} else {
+		gs.templ, err = gs.templ.New(name).Parse(string(body))
+	}
+	return
 }
