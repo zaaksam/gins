@@ -21,9 +21,10 @@ type Config struct {
 	Debug         bool   // 是否开启调试
 	Pprof         bool   // 是否监控性能
 
-	LogLevel        string       // logger 日志级别，支持：trace、debug、info、warn、error、fatal、panic，默认：info
-	logrusLevel     logrus.Level // LogLevel 的 logrus 格式化
-	IsDisableSignal bool         // 是否关闭 signal 信号监听退出，默认：false，设置为 true 时，需主动调用 gins.Stop() 来触发优雅退出
+	LogLevel           string       // logger 日志级别，支持：trace、debug、info、warn、error、fatal、panic，默认：info
+	logrusLevel        logrus.Level // LogLevel 的 logrus 格式化
+	IsDisableSignal    bool         // 是否关闭 signal 信号监听退出，默认：false，设置为 true 时，需主动调用 gins.Stop() 来触发优雅退出
+	IsEnableKeepAlives bool         // 是否开启 KeepAlive ，默认：false
 
 	On500 gin.RecoveryFunc // 自定义 500 处理，相当于 panic 的 recover 处理
 	On404 gin.HandlerFunc  // 自定义 404 处理

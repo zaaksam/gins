@@ -1,8 +1,6 @@
 package gins
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,17 +8,10 @@ func onHandler(gs *Server) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		ctx.Next()
 
-		httpStatus := ctx.Writer.Status()
-
-		if httpStatus == http.StatusNotFound {
-			if gs.conf.On404 != nil {
-				gs.conf.On404(ctx)
-			}
-
+		// 提前中止
+		if ctx.IsAborted() {
 			return
 		}
-
-		// TODO: 是否要处理 http.StatusInternalServerError 500 事件调用 On505
 
 		var res IResponse
 
