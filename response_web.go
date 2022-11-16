@@ -34,7 +34,7 @@ func (res *webResponse) Set301Redirect(location string) {
 	res.ctx.Redirect(http.StatusMovedPermanently, location)
 
 	// 设置了跳转，中止后续处理
-	res.ctx.IsAborted()
+	res.ctx.Abort()
 }
 
 // 设置 临时 跳转信息
@@ -42,7 +42,7 @@ func (res *webResponse) Set302Redirect(location string) {
 	res.ctx.Redirect(http.StatusFound, location)
 
 	// 设置了跳转，中止后续处理
-	res.ctx.IsAborted()
+	res.ctx.Abort()
 }
 
 // 设置 header 信息
