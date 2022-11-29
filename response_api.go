@@ -85,10 +85,9 @@ func (res *apiResponse) SetError(err error) {
 		res.result.Code = ae.Code
 		res.result.Msg = ae.Msg
 
-		// FIXME: 包装过的错误，进行日志打印，只取 wrap 最外一层
 		wrapErr := ae.Unwrap()
 		if wrapErr != nil {
-			logger.Errorf("%s：%s", ae.Msg, wrapErr.Error())
+			logger.Errorf("%s", ae.UnwrapError())
 		}
 		return
 	}
