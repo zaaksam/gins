@@ -97,6 +97,9 @@ func (res *apiResponse) SetError(err error) {
 }
 
 func (res *apiResponse) render() {
+	// 获取自定义常量 code 值，如果有的话
+	res.result.Code = constant.GetConstAPICodeConvert(res.result.Code)
+
 	var obj any
 	if res.data != nil {
 		obj = res.data
