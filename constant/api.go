@@ -31,3 +31,28 @@ const (
 	// 响应异常
 	API_CRASH APICodeType = 500
 )
+
+var codeTable map[APICodeType]APICodeType
+
+// 设置常量 api code 转换规则，用于改写默认的常量值
+func SetConstAPICodeConvert(constCode APICodeType, convertCode APICodeType) {
+	if codeTable == nil {
+		codeTable = make(map[APICodeType]APICodeType)
+	}
+
+	codeTable[constCode] = convertCode
+}
+
+// 获取常量 api code 的转换码，如果没有则返回默认常量值
+func GetConstAPICodeConvert(constCode APICodeType) (convertCode APICodeType) {
+	if codeTable == nil {
+		convertCode = constCode
+		return
+	}
+
+	convertCode, ok := codeTable[constCode]
+	if !ok {
+		convertCode = constCode
+	}
+	return
+}

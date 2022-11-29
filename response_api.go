@@ -85,10 +85,9 @@ func (res *apiResponse) SetError(err error) {
 		res.result.Code = ae.Code
 		res.result.Msg = ae.Msg
 
-		// FIXME: 包装过的错误，进行日志打印，只取 wrap 最外一层
 		wrapErr := ae.Unwrap()
 		if wrapErr != nil {
-			logger.Errorf("%s：%s", ae.Msg, wrapErr.Error())
+			logger.Errorf("%s", ae.UnwrapError())
 		}
 		return
 	}
@@ -98,6 +97,9 @@ func (res *apiResponse) SetError(err error) {
 }
 
 func (res *apiResponse) render() {
+	// 获取自定义常量 code 值，如果有的话
+	res.result.Code = constant.GetConstAPICodeConvert(res.result.Code)
+
 	var obj any
 	if res.data != nil {
 		obj = res.data
